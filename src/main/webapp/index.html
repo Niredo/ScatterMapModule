@@ -365,13 +365,13 @@
         var serie = [];
         for (var i = 0; i < responseData["instrumentNameList"].length; i++) {
             var item = {
-                name: responseData["instrumentNameList"][i] + "集中区域统计数量：" + responseData[responseData["instrumentNameList"][i] + "_count"],
+                name: responseData["instrumentNameList"][i],
                 type: 'scatter',
                 emphasis: {
                     focus: 'series'
                 },
                 data: responseData[responseData["instrumentNameList"][i]],
-                // markArea: {
+                // markArea: {/*数据范围显示*/
                 //     silent: true,
                 //     itemStyle: {
                 //         color: 'transparent',
@@ -394,8 +394,8 @@
                 // },
                 // markPoint: {
                 //     data: [
-                //         {type: 'max', name: 'Max'},
-                //         {type: 'min', name: 'Min'},
+                //         { type: 'max', name: 'Max' },
+                //         { type: 'min', name: 'Min' }
                 //     ]
                 // },
                 markLine: {

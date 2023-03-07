@@ -1,0 +1,98 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/scatter_map?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    #url: jdbc:mysql://localhost:3306/gzyfs_data?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+
+mybatis-plus:
+  # XML文件位置
+  mapper-locations: classpath*:/mapper/**/*.xml
+  # MyBaits 别名包扫描路径，XML中调用的时候不用包含包名，多个package用逗号或者分号隔开
+  # 该配置请和 typeAliasesPackage 一起使用，如果配置了该属性，则仅仅会扫描路径下以该类作为父类的域对象
+  # typeAliasesSuperType: Class<?>
+  # 如果配置了该属性，SqlSessionFactoryBean 会把该包下面的类注册为对应的 TypeHandler  # 提示 TypeHandler 通常用于自定义类型转换。
+  # typeHandlersPackage: null
+  type-aliases-package: com.sx.ma.entity
+  # 启动时是否检查 MyBatis XML 文件的存在，默认不检查
+  check-config-location: false
+  # 通过该属性可指定 MyBatis 的执行器，MyBatis 的执行器总共有三种：
+  # SIMPLE：该执行器类型不做特殊的事情，为每个语句的执行创建一个新的预处理语句（PreparedStatement）
+  # REUSE：该执行器类型会复用预处理语句（PreparedStatement）
+  # BATCH：该执行器类型会批量执行所有的更新语句
+  executor-type: simple
+  # 指定外部化 MyBatis Properties 配置，通过该配置可以抽离配置，实现不同环境的配置部署
+  # configuration-properties: null
+
+  configuration:
+    # 是否开启自动驼峰命名规则（camel case）映射
+    # 如果您的数据库命名符合规则无需使用 @TableField 注解指定数据库字段名
+    map-underscore-to-camel-case: true
+    # 默认枚举处理类,如果配置了该属性,枚举将统一使用指定处理器进行处理
+    # org.apache.ibatis.type.EnumTypeHandler : 存储枚举的名称
+    # org.apache.ibatis.type.EnumOrdinalTypeHandler : 存储枚举的索引
+    # com.baomidou.mybatisplus.extension.handlers.MybatisEnumTypeHandler : 枚举类需要实现 IEnum 接口或字段标记@EnumValue 注解.
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
+    # 当设置为 true 的时候，懒加载的对象可能被任何懒属性全部加载，否则，每个属性都按需加载。
+    # 需要和 lazyLoadingEnabled 一起使用。
+    aggressive-lazy-loading: true
+    # MyBatis 自动映射策略
+    # NONE：不启用自动映射
+    # PARTIAL：只对非嵌套的 resultMap 进行自动映射
+    # FULL：对所有的 resultMap 都进行自动映射
+    auto-mapping-behavior: partial
+    # MyBatis 自动映射时未知列或未知属性处理策略
+    # NONE：不做任何处理 (默认值)
+    # WARNING：以日志的形式打印相关警告信息
+    # FAILING：当作映射失败处理，并抛出异常和详细信息
+    auto-mapping-unknown-column-behavior: none
+    # Mybatis 一级缓存，默认为 SESSION。
+    # SESSION session 级别缓存，同一个 session 相同查询语句不会再次查询数据库
+    # STATEMENT 关闭一级缓存
+    local-cache-scope: session
+    # 开启 Mybatis 二级缓存，默认为 true。
+    cache-enabled: true
+
+  global-config:
+    # 是否控制台print mybatis-plus的LOGO
+    banner: true
+    # 是否初始化SqlRunner(com.baomidou.mybatisplus.extension.toolkit.SqlRunner)
+    enable-sql-runner: false
+    # DB 策略配置
+    db-config:
+      # 全局默认主键类型
+      # AUTO：数据库ID自增
+      # NONE：空
+      # INPUT：用户输入ID
+      # ASSIGN_ID：全局唯一ID
+      # ASSIGN_UUID：全局唯一ID UUID
+      id-type: auto
+      # 表名前缀
+      table-prefix: null
+      # 字段 format,例: %s,(对主键无效)
+      column-format: null
+      # 表名是否使用驼峰转下划线命名,只对表名生效
+      table-underline: true
+      # 大写命名,对表名和字段名均生效
+      capital-mode: false
+      # 全局的 entity 的逻辑删除字段属性名,(逻辑删除下有效)
+      logic-delete-field: null
+      # 逻辑已删除值,(逻辑删除下有效)
+      logic-delete-value: 1
+      # 逻辑未删除值,(逻辑删除下有效)
+      logic-not-delete-value: 0
+      # 字段验证策略之 insert,在 insert 的时候的字段验证策略
+      # IGNORED：忽略判断
+      # NOT_NULL：非NULL判断
+      # NOT_EMPTY：非空判断(只对字符串类型字段，其他类型字段依然为非NULL判断)
+      # DEFAULT：默认的，一般只用于注解里
+      # NEVER：不加入SQL
+      insert-strategy: not_null
+      # 字段验证策略之 update,在 update 的时候的字段验证策略
+      update-strategy: not_null
+      # 字段验证策略之 select,在 select 的时候的字段验证策略既 wrapper 根据内部 entity 生成的 where 条件
+      where-strategy: not_null

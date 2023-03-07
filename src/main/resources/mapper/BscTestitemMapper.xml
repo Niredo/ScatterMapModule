@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sx.ma.mapper.BscTestitemMapper">
+    <select id="selectAll" resultType="com.sx.ma.vo.TestItemVo">
+        select TestItemCode, EnglishName, TestItemName, cv, sample
+        from bsc_testitem
+        LEFT JOIN qualitytargetsetingmodel ON TestItemName = test_item_name
+        where sample != '尿液'
+        GROUP BY TestItemCode, EnglishName, TestItemName, cv, sample
+    </select>
+</mapper>

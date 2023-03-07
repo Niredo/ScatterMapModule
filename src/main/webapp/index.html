@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--引用jquery CDN-->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <!-- echarts.js文件 -->
+    <script type="text/javascript" src="./js/echarts.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+            integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+          integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <!--多选框插件-->
+    <script src="./js/jquery.multi-select.js" type="text/javascript"></script>
+    <link href="./css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+    <!--多选框中的搜索插件-->
+    <script src="./js/jquery.quicksearch.js" type="text/javascript"></script>
+    <title>散点图</title>
+</head>
+
+<body>
+<!-- 下拉框按钮 -->
+<div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        项目列表&nbsp;&nbsp;&nbsp;<span class="caret"></span>
+    </button>
+    <ul id="testItemList" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+        <!--下拉框列表：js中动态生产数据-->
+    </ul>
+</div>
+
+<!-- 模态框 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- 模态框标题 -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+            </div>
+            <!-- 模态框内容 -->
+            <div class="modal-body">
+                <!-- 多选框 -->
+                <select id='custom-headers' multiple='multiple'>
+                    <!--多选框数据，js动态生成-->
+                </select>
+                <!-- 多选框操作按钮 -->
+                <div>
+                    <button id="selectAll" type="button">全选</button>
+                    &nbsp;&nbsp;&nbsp;
+                    <button id="deselectAll" type="button">全取消</button>
+                </div>
+            </div>
+            <!-- 模态框操作按钮 -->
+            <div class="modal-footer">
+                <button id="unCommit" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="commit" type="button" class="btn btn-primary" data-dismiss="modal">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 选取结果范围区域 -->
+<div>
+    <input type="text" id="lowerResult"><input type="text" id="upperResult">
+    <input type="button" id="selectRangeMap" onclick="selectRangeMap()" value="生成点状图">
+</div>
+
+
+<!-- echarts点状图 -->
+<div id="mainEcharts" style="width:100%;height:900px;" class="col-sm-3"></div>
+<!-- 信息说明 -->
+<div id="show"></div>
+<!-- 截断范围echarts点状图 -->
+<div id="selectForEcharts" style="width:100%;height:900px;"></div>
+<script>
+    var mainECharts = {};
+    var selectForEcharts = {};
+    /* 初始化 */
+    $(function () {
+        $.ajax({
+            headers: {'Content-Type': 'application/json;charset=utf8'},
+            type: 'GET',//发送方式
+            url: 'http://localhost:8080/scatterMap/testItemList',//API接口
+            datatype: "json",
+            async: false,
+            data: "",
+            success: function (data) {
+                if (data.code != 200) {
+                    return;
+                }
+                var responseData = data.data;
+                if (responseData != undefined && responseData.length > 0) {
+                    for (var i = 0; i < responseData.length; i++) {
+                        var testItemCode = responseData[i].testItemCode;
+                        var testItemName = responseData[i].testItemName;
+                        var cv = responseData[i].cv;
+                        var opt = "<li data-toggle='modal' data-target='#myModal'><a onclick='testItem(\"" + testItemCode + "\",\"" + testItemName + "\",\"" + cv + "\")' >" + testItemName + "</a></li>";
+                        $("#testItemList").append(opt);
+                    }
+                }
+            },
+        });
+        mainECharts = echarts.init(document.getElementById('mainEcharts'));
+        selectForEcharts = echarts.init(document.getElementById('selectForEcharts'));
+        window.onresize = function () {
+            mainECharts.resize();
+            selectForEcharts.resize();
+        };
+
+    });
+
+    /* 项目代码 */
+    var itemCode = [];
+    var itemCode2 = [];
+    /* 变异系数 */
+    var CoefficientOfVariation = [];
+    var CoefficientOfVariation2 = [];
+    /* 项目名称 */
+    var itemName = [];
+    var itemName2 = [];
+
+    /* 项目触发事件 */
+    function testItem(testItemCode, testItemName, cv) {
+        /* 初始化数据 */
+        itemCode.push(testItemCode);
+        itemCode2.push(testItemCode);
+        CoefficientOfVariation.push(cv);
+        CoefficientOfVariation2.push(cv);
+        itemName.push(testItemName);
+        itemName2.push(testItemName);
+        /* 初始化数据 */
+        $.ajax({
+            headers: {'Content-Type': 'application/json;charset=utf8'},
+            type: 'POST',//发送方式
+            url: 'http://localhost:8080/scatterMap/instrumentNameList',//API接口
+            datatype: "json",
+            async: false,
+            data: testItemCode,
+            success: function (data) {
+                if (data.code != 200) {
+                    return;
+                }
+                var responseData = data.data;
+                if (responseData != undefined && responseData.length > 0) {
+                    /* 设置模态框标题 */
+                    $("#myModalLabel").html(testItemName);
+                    /* 内容置空 */
+                    $("#custom-headers").html("");
+                    /* 动态生成数据 */
+                    for (var i = 0; i < responseData.length; i++) {
+                        $('#custom-headers').multiSelect('addOption', {
+                            value: responseData[i],
+                            text: responseData[i],
+                            index: i,
+                        });
+                    }
+                    /* 刷新多选框 */
+                    $('#custom-headers').multiSelect('refresh');
+                }
+            },
+        });
+    }
+
+    /* 仪器名称集合 */
+    var instrumentNameList = [];
+    var instrumentNameList2 = [];
+
+    /* 多选框和搜索插件集成 */
+    $('#custom-headers').multiSelect({
+        selectableHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='try \"12\"'>",
+        selectionHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='try \"4\"'>",
+        selectableFooter: "<div class='custom-header'>未选内容</div>",
+        selectionFooter: "<div class='custom-header'>已选内容</div>",
+        afterInit: function (ms) {
+            var that = this,
+                $selectableSearch = that.$selectableUl.prev(),
+                $selectionSearch = that.$selectionUl.prev(),
+                selectableSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selectable:not(.ms-selected)',
+                selectionSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selection.ms-selected';
+
+            that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
+                .on('keydown', function (e) {
+                    if (e.which === 40) {
+                        that.$selectableUl.focus();
+                        return false;
+                    }
+                });
+
+            that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
+                .on('keydown', function (e) {
+                    if (e.which == 40) {
+                        that.$selectionUl.focus();
+                        return false;
+                    }
+                });
+        },
+        /* 多选框选中的操作 */
+        afterSelect: function (values) {
+            this.qs1.cache();
+            this.qs2.cache();
+            for (var i = 0; i < values.length; i++) {
+                instrumentNameList.push(values[i]);
+                instrumentNameList2.push(values[i]);
+            }
+        },
+        /* 多选框未选中的操作 */
+        afterDeselect: function (values) {
+            this.qs1.cache();
+            this.qs2.cache();
+            for (var i = 0; i < values.length; i++) {
+                instrumentNameList.shift();
+            }
+        }
+    });
+
+    /* 多选框全选操作 */
+    $("#selectAll").click(function () {
+        $('#custom-headers').multiSelect('select_all');
+    })
+
+    /* 多选框全部取消操作 */
+    $("#deselectAll").click(function () {
+        $('#custom-headers').multiSelect('deselect_all');
+    })
+
+
+    /*  模态框提交按钮触发事件 */
+    $("#commit").click(function () {
+        // 1.清空点状图
+        mainECharts.clear();
+        selectForEcharts.clear()
+
+        var jsonData = {
+            "testItemCode": itemCode[0],
+            "projectName": itemName[0],
+            "instrumentNameList": instrumentNameList,
+            "cv": CoefficientOfVariation[0],
+            "startDate": "",
+            "endDate": ""
+        };
+
+        var jsonObj = JSON.stringify(jsonData);
+
+        // 2.生成点状图
+        $.ajax({
+            headers: {'Content-Type': 'application/json;charset=utf8'},
+            type: 'POST',//发送方式
+            url: 'http://localhost:8080/scatterMap/map',//API接口
+            datatype: "json",
+            async: false,
+            data: jsonObj,
+            success: function (data) {
+                if (data.code != 200) {
+                    return;
+                }
+                var responseData = data.data;
+                if (responseData != undefined) {
+                    $.scatter_func(responseData);
+                    mainECharts.setOption(option);
+                    $("#show").append("<tr><td>单浓度各仪器数量统计</td><tr/>").html();
+                    for (var i = 0; i < responseData["instrumentNameList"].length; i++) {
+                        var data = responseData["instrumentNameList"][i] + "&nbsp&nbsp&nbsp统计数量：" + responseData[responseData["instrumentNameList"][i] + "_count"];
+                        var dataShow = "<tr><td>" + data + "</td></tr>";
+                        $("#show").append(dataShow).html();
+                    }
+                }
+            },
+        });
+
+        // 3.仪器名称集合重置为空
+        instrumentNameList.length = 0;
+        itemCode.length = 0;
+        itemName.length = 0;
+        CoefficientOfVariation.length = 0;
+
+        // 4.取消选中
+        $('#custom-headers').multiSelect('deselect_all');
+
+        // 5.显示
+        $("#upperResult").show();
+        $("#lowerResult").show();
+        $("#selectRangeMap").show();
+    });
+
+    // 数据信息
+    $.scatter_func = function (responseData) {
+        option = {
+            title: {
+                text: responseData["projectName"],
+                subtext: '数据来源：西安区检'
+            },
+            grid: {
+                left: '3%',
+                right: '7%',
+                bottom: '7%',
+                containLabel: true
+            },
+            tooltip: {
+                showDelay: 0,
+                formatter: function (params) {
+                    return ('结果:' + params.value[0] + ' 年龄:' + params.value[1]);
+                },
+                axisPointer: {
+                    show: true,
+                    type: 'cross',
+                    lineStyle: {
+                        type: 'dashed',
+                        width: 1
+                    }
+                }
+            },
+            toolbox: {
+                feature: {
+                    dataZoom: {},
+                    brush: {
+                        type: ['rect', 'polygon', 'clear']
+                    }
+                }
+            },
+
+            brush: {},
+            legend: {
+                data: data_func(responseData),
+                left: 'center',
+                bottom: 10,
+            },
+            xAxis: {
+                type: 'value',
+                scale: false,
+            },
+            yAxis: {
+                type: 'value',
+                scale: false,
+                splitNumber: 24,
+                axisLabel: {
+                    formatter: (val, key) => {
+                        if (key % 5 == 0) {
+                            return val
+                        }
+                    }
+                }
+            },
+            series: serie_func(responseData)
+        };
+    }
+
+    // 选项点
+    function data_func(responseData) {
+        var legend_data = [];
+        for (var i = 0; i < responseData["instrumentNameList"].length; i++) {
+            var data_item = responseData["instrumentNameList"][i];
+            legend_data.push(data_item);
+        }
+        return legend_data;
+    }
+
+    // 数据集合基本参数
+    function serie_func(responseData) {
+        var serie = [];
+        for (var i = 0; i < responseData["instrumentNameList"].length; i++) {
+            var item = {
+                name: responseData["instrumentNameList"][i] + "集中区域统计数量：" + responseData[responseData["instrumentNameList"][i] + "_count"],
+                type: 'scatter',
+                emphasis: {
+                    focus: 'series'
+                },
+                data: responseData[responseData["instrumentNameList"][i]],
+                // markArea: {
+                //     silent: true,
+                //     itemStyle: {
+                //         color: 'transparent',
+                //         borderWidth: 1,
+                //         borderType: 'dashed'
+                //     },
+                //     data: [
+                //         [
+                //             {
+                //                 name: '数据范围',
+                //                 xAxis: 'min',
+                //                 yAxis: 'min'
+                //             },
+                //             {
+                //                 xAxis: 'max',
+                //                 yAxis: 'max'
+                //             }
+                //         ]
+                //     ]
+                // },
+                // markPoint: {
+                //     data: [
+                //         {type: 'max', name: 'Max'},
+                //         {type: 'min', name: 'Min'},
+                //     ]
+                // },
+                markLine: {
+                    symbol: ['none', 'none'], // none为标线两端的样式为无，可更改
+                    data: [
+                        {
+                            xAxis: responseData["concentration"]["thirdLeftRange"][0],
+                            label: {
+                                position: 'end', // 表现内容展示的位置
+                                fontSize: '15',
+                            },
+                        },
+                        {
+                            xAxis: responseData["concentration"]["secondLeftRange"][0],
+                            label: {
+                                position: 'end', // 表现内容展示的位置
+                                fontSize: '15',
+                            },
+                        },
+                        {
+                            xAxis: responseData["concentration"]["singleConcentration"][0],
+                            label: {
+                                position: 'end', // 表现内容展示的位置
+                                color: '#000000',  // 展示内容颜色
+                                fontSize: '15',
+
+                            },
+                            lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
+                        },
+                        {
+                            xAxis: responseData["concentration"]["singleConcentration"][1],
+                            label: {
+                                position: 'end', // 表现内容展示的位置
+                                color: '#000000',  // 展示内容颜色
+                                fontSize: '15',
+                            },
+                            lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
+                        },
+                        {
+                            xAxis: responseData["concentration"]["secondRightRange"][1],
+                            label: {
+                                position: 'end', // 表现内容展示的位置
+                                fontSize: '15',
+                            },
+                        },
+                        {
+                            xAxis: responseData["concentration"]["thirdRightRange"][1],
+                            label: {
+                                position: 'end', // 表现内容展示的位置
+                                fontSize: '15',
+                            },
+                        },
+                    ]
+                }
+            }
+            serie.push(item);
+        }
+        return serie;
+    }
+
+    // 选取范围生成点状图按钮事件
+    function selectRangeMap() {
+        // 1.清空点状图
+        selectForEcharts.clear()
+
+        var jsonData = {
+            "testItemCode": itemCode2[0],
+            "projectName": itemName2[0],
+            "instrumentNameList": instrumentNameList2,
+            "cv": CoefficientOfVariation2[0],
+            "startDate": "",
+            "endDate": "",
+            "upperResult": $("#upperResult").val(),
+            "lowerResult": $("#lowerResult").val()
+        };
+
+        var jsonObj = JSON.stringify(jsonData);
+
+        // 2.生成点状图
+        $.ajax({
+            headers: {'Content-Type': 'application/json;charset=utf8'},
+            type: 'POST',//发送方式
+            url: 'http://localhost:8080/scatterMap/selectionRangeMap',//API接口
+            datatype: "json",
+            async: false,
+            data: jsonObj,
+            success: function (data) {
+                if (data.code != 200) {
+                    return;
+                }
+                var responseData = data.data;
+                if (responseData != undefined) {
+                    $.scatter_func(responseData);
+                    selectForEcharts.setOption(option);
+                }
+            },
+        });
+
+        // 3.仪器名称集合重置为空
+        instrumentNameList2.length = 0;
+        itemCode2.length = 0;
+        itemName2.length = 0;
+        CoefficientOfVariation2.length = 0;
+
+        // 4.输入框清空
+        $("#upperResult").val('');
+        $("#lowerResult").val('');
+
+        // 5.隐藏
+        $("#upperResult").hide();
+        $("#lowerResult").hide();
+        $("#selectRangeMap").hide();
+
+    }
+
+</script>
+</body>
+</html>

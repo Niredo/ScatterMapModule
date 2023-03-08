@@ -10,18 +10,23 @@ import lombok.Data;
  */
 @Data
 public class ResponseResult<T> {
-
-    /** 状态码 **/
+    /**
+     * 状态码
+     */
     private Integer code;
-    /** 信息 **/
+    /**
+     * 信息
+     */
     private String msg;
-    /** 数据 **/
+    /**
+     * 数据
+     */
     private T data;
 
     /**
-     * 无参构造函数
-     * 默认SUCCESS
-     */    public ResponseResult() {
+     * 无参构造函数，默认SUCCESS
+     */
+    public ResponseResult() {
         this.code = AppHttpCodeEnum.SUCCESS.getCode();
         this.msg = AppHttpCodeEnum.SUCCESS.getMsg();
     }
@@ -62,31 +67,32 @@ public class ResponseResult<T> {
     }
 
     /**
-     * 默认成功
+     * 成功(默认)
      *
      * @return SUCCESS
-     */    public static ResponseResult okResult() {
+     */
+    public static ResponseResult okResult() {
         return new ResponseResult();
     }
 
     /**
-     * 自定义状态码和信息
+     * 成功(自定义状态码和信息)
      *
      * @param code 状态码
-     * @param msg 信息
-     * @return 携带的状态码和信息
+     * @param msg  信息
+     * @return 响应
      */
     public static ResponseResult okResult(int code, String msg) {
         return new ResponseResult().ok(code, msg, null);
     }
 
     /**
-     * 自定义数据
+     * 成功(自定义数据)
      *
      * @param data 数据
-     * @return 携带的数据
+     * @return 响应
      */
-    public static  ResponseResult okResult(Object data) {
+    public static ResponseResult okResult(Object data) {
         ResponseResult result = setAppHttpCodeEnum(AppHttpCodeEnum.SUCCESS);
         if (data != null) {
             result.setData(data);
@@ -102,31 +108,21 @@ public class ResponseResult<T> {
     }
 
     /**
-     * 自定义状态码和信息
+     * 失败(自定义响应枚举)
      *
-     * @param code 状态码
-     * @param msg  信息
-     * @return 携带的状态码和信息
-     */
-    public static ResponseResult errorResult(int code, String msg) {
-        return new ResponseResult().error(code, msg);
-    }
-
-    /**
-     * 自定义状态码枚举
-     *
-     * @param enums 枚举
-     * @return 携带状态码枚举
+     * @param enums 响应枚举
+     * @return 响应
      */
     public static ResponseResult errorResult(AppHttpCodeEnum enums) {
         return setAppHttpCodeEnum(enums);
     }
 
     /**
-     * 自定义状态码枚举和信息
-     * @param enums 枚举
-     * @param msg  信息
-     * @return 携带的状态码和信息
+     * 失败(自定义响应枚举和信息)
+     *
+     * @param enums
+     * @param msg
+     * @return
      */
     public static ResponseResult errorResult(AppHttpCodeEnum enums, String msg) {
         return setAppHttpCodeEnum(enums, msg);

@@ -11,9 +11,13 @@ import lombok.Getter;
 public enum AppHttpCodeEnum {
     SUCCESS(200, "操作成功"),
     SYSTEM_ERROR(500, "系统错误");
-    /** 状态码 **/
+    /**
+     * 状态码
+     */
     int code;
-    /** 信息 **/
+    /**
+     * 信息
+     */
     String msg;
 
     AppHttpCodeEnum(int code, String msg) {

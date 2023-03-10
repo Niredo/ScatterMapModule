@@ -33,9 +33,4 @@ public class InstrumentVo {
      * 患者性别
      */
     private String sex;
-
-    /**
-     * 病房ID
-     */
-    private int wardId;
 }

@@ -80,9 +80,7 @@ public class ScatterMapServiceImpl implements ScatterMapService {
                         List<Double> list = new ArrayList<>();
                         // 添加结果和年龄
                         list.add(ConvertUtils.toDouble(instrumentVo.getResult()));
-                        // list.add(Double.parseDouble(instrumentVo.getAge()));
-                        /* 青浦区检 */
-                        list.add(Double.parseDouble(String.valueOf(instrumentVo.getWardId())));
+                        list.add(Double.parseDouble(instrumentVo.getAge()));
                         instrumentData.add(list);
                     }
                 }

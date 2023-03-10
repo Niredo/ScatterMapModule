@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sx.ma.mapper.ScatterMapMapper">
+    <!--<select id="selectByInstrumentName" resultType="com.sx.ma.vo.InstrumentVo">-->
+    <!--    select INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX-->
+    <!--    from ${tableName}-->
+    <!--    where INSTRUMENTNAME = #{instrumentName}-->
+    <!--    GROUP BY INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX;-->
+    <!--</select>-->
+
+    <!--<select id="selectByInstrumentName" resultType="com.sx.ma.vo.InstrumentVo">-->
+    <!--    select INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX, PatientTypeID-->
+    <!--    from ${tableName}-->
+    <!--    LEFT JOIN bsc_patienttype on PatientTypeCode = JIUZHENTYPE-->
+    <!--    where INSTRUMENTNAME = #{instrumentName}-->
+    <!--    GROUP BY INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX, PatientTypeID;-->
+    <!--</select>-->
+
     <select id="selectByInstrumentName" resultType="com.sx.ma.vo.InstrumentVo">
-        select INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX
+        select INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX, WardID
         from ${tableName}
+        LEFT JOIN bsc_ward on ${tableName}.WARDNAME=bsc_ward.WardName
         where INSTRUMENTNAME = #{instrumentName}
-        GROUP BY INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX;
+        GROUP BY INSTRUMENTNAME, RESULT, RESULTDATE, AGE, SEX, WardID;
     </select>
+
     <select id="selectInstrumentNameList" resultType="java.lang.String">
         select INSTRUMENTNAME
         from ${tableName}

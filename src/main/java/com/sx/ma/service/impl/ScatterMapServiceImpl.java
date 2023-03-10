@@ -80,7 +80,9 @@ public class ScatterMapServiceImpl implements ScatterMapService {
                         List<Double> list = new ArrayList<>();
                         // 添加结果和年龄
                         list.add(ConvertUtils.toDouble(instrumentVo.getResult()));
-                        list.add(Double.parseDouble(instrumentVo.getAge()));
+                        // list.add(Double.parseDouble(instrumentVo.getAge()));
+                        /* 青浦区检 */
+                        list.add(Double.parseDouble(String.valueOf(instrumentVo.getWardId())));
                         instrumentData.add(list);
                     }
                 }
@@ -123,7 +125,7 @@ public class ScatterMapServiceImpl implements ScatterMapService {
         // 落点范围数据
         HashMap<String, ArrayList<Double>> pointScope = new HashMap<>(copies);
         for (InstrumentVo instrumentVo : instrumentList) {
-            statistics.addValue(instrumentVo.getResult());
+            statistics.addValue(Double.parseDouble(instrumentVo.getResult()));
         }
         // 均值
         double mean = ConvertUtils.toDouble(statistics.getMean());
@@ -152,7 +154,7 @@ public class ScatterMapServiceImpl implements ScatterMapService {
         double[] resultList = new double[instrumentList.size()];
         for (int i = 0; i < instrumentList.size(); i++) {
             InstrumentVo instrumentVo = instrumentList.get(i);
-            Double result = instrumentVo.getResult();
+            Double result = Double.parseDouble(instrumentVo.getResult());
             resultList[i] = result;
         }
         Percentile percentile = new Percentile();
@@ -167,7 +169,7 @@ public class ScatterMapServiceImpl implements ScatterMapService {
 
         for (int i = 0; i < instrumentList.size(); i++) {
             InstrumentVo instrumentVo = instrumentList.get(i);
-            Double result = instrumentVo.getResult();
+            Double result = Double.parseDouble(instrumentVo.getResult());
             if (result > upper || result < lower) {
                 instrumentList.remove(i--);
             }
@@ -179,7 +181,7 @@ public class ScatterMapServiceImpl implements ScatterMapService {
     public List<InstrumentVo> filterDataByStandardDeviation(List<InstrumentVo> instrumentList) {
         DescriptiveStatistics statistics = new DescriptiveStatistics();
         for (InstrumentVo instrumentVo : instrumentList) {
-            Double result = instrumentVo.getResult();
+            Double result = Double.parseDouble(instrumentVo.getResult());
             statistics.addValue(result);
         }
 
@@ -192,7 +194,7 @@ public class ScatterMapServiceImpl implements ScatterMapService {
 
         for (int i = 0; i < instrumentList.size(); i++) {
             InstrumentVo instrumentVo = instrumentList.get(i);
-            Double result = instrumentVo.getResult();
+            Double result = Double.parseDouble(instrumentVo.getResult());
             if (result > upper || result < lower) {
                 instrumentList.remove(i--);
             }

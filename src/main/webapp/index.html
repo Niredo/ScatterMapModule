@@ -293,7 +293,7 @@
         option = {
             title: {
                 text: responseData["projectName"],
-                subtext: '数据来源：西安区检'
+                subtext: '数据来源：青浦区检'
             },
             grid: {
                 left: '3%',
@@ -405,15 +405,19 @@
                             xAxis: responseData["concentration"]["thirdLeftRange"][0],
                             label: {
                                 position: 'end', // 表现内容展示的位置
+                                color: '#000000',
                                 fontSize: '15',
                             },
+                            lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
                         },
                         {
                             xAxis: responseData["concentration"]["secondLeftRange"][0],
                             label: {
                                 position: 'end', // 表现内容展示的位置
+                                color: '#000000',
                                 fontSize: '15',
                             },
+                            lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
                         },
                         {
                             xAxis: responseData["concentration"]["singleConcentration"][0],
@@ -421,7 +425,6 @@
                                 position: 'end', // 表现内容展示的位置
                                 color: '#000000',  // 展示内容颜色
                                 fontSize: '15',
-
                             },
                             lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
                         },
@@ -438,15 +441,19 @@
                             xAxis: responseData["concentration"]["secondRightRange"][1],
                             label: {
                                 position: 'end', // 表现内容展示的位置
+                                color: '#000000',
                                 fontSize: '15',
                             },
+                            lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
                         },
                         {
                             xAxis: responseData["concentration"]["thirdRightRange"][1],
                             label: {
                                 position: 'end', // 表现内容展示的位置
+                                color: '#000000',
                                 fontSize: '15',
                             },
+                            lineStyle: {type: 'dashed', color: '#000000', width: 5} // 样式： 线型、颜色、线宽
                         },
                     ]
                 }

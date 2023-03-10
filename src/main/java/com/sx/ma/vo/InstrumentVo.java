@@ -20,7 +20,7 @@ public class InstrumentVo {
     /**
      * 仪器结果
      */
-    private Double result;
+    private String result;
     /**
      * 仪器结果日期
      */
@@ -33,4 +33,9 @@ public class InstrumentVo {
      * 患者性别
      */
     private String sex;
+
+    /**
+     * 病房ID
+     */
+    private int wardId;
 }

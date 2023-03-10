@@ -4,7 +4,7 @@
     <select id="selectAll" resultType="com.sx.ma.vo.TestItemVo">
         select TestItemCode, EnglishName, TestItemName, cv, sample
         from bsc_testitem
-        LEFT JOIN qualitytargetsetingmodel ON TestItemName = test_item_name
+        LEFT JOIN qualitytargetsetingmodel ON TestItemCode = test_item_code
         where sample != '尿液'
         GROUP BY TestItemCode, EnglishName, TestItemName, cv, sample
     </select>

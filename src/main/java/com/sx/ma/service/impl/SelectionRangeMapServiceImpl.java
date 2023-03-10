@@ -70,12 +70,14 @@ public class SelectionRangeMapServiceImpl implements SelectionRangeMapService {
                         // 添加点状图所需要的数据
                         List<Double> list = new ArrayList<>();
                         // 选取范围添加数据
-                        Double result = instrumentVo.getResult();
+                        Double result = Double.parseDouble(instrumentVo.getResult());
                         if (result >= Double.parseDouble(lowerResult) && result <= Double.parseDouble(upperResult)) {
                             // 添加结果和年龄
                             unclassifiedInstrumentLocalCache.add(instrumentVo);
                             list.add(ConvertUtils.toDouble(instrumentVo.getResult()));
-                            list.add(Double.parseDouble(instrumentVo.getAge()));
+                            // list.add(Double.parseDouble(instrumentVo.getAge()));
+                            /* 青浦区检 */
+                            list.add(Double.parseDouble(String.valueOf(instrumentVo.getWardId())));
                             instrumentData.add(list);
                         }
                     }
@@ -119,7 +121,7 @@ public class SelectionRangeMapServiceImpl implements SelectionRangeMapService {
         // 落点范围数据
         HashMap<String, ArrayList<Double>> pointScope = new HashMap<>(copies);
         for (InstrumentVo instrumentVo : instrumentList) {
-            statistics.addValue(instrumentVo.getResult());
+            statistics.addValue(Double.parseDouble(instrumentVo.getResult()));
         }
         // 均值
         double mean = ConvertUtils.toDouble(statistics.getMean());
